@@ -46,7 +46,7 @@ var loadChecks = function(checksfile) {
 };
 
 var checkHtmlFile = function(htmlfile, checksfile) {
-  return runChecks(cheerioHtmlFile(htmlfile));
+  return runChecks(cheerioHtmlFile(htmlfile), checksfile);
 };
 
 var checkRemote = function(htmlfile, checksfile) {
@@ -54,16 +54,14 @@ var checkRemote = function(htmlfile, checksfile) {
   
 }
 
-var runChecks = function(cheerio, checksfile) {
-	console.log('Running checks');
-  $ = cheerio;
+var runChecks = function(cheerios, checksfile) {
+  $ = cheerios;
   var checks = loadChecks(checksfile).sort();
   var out = {};
   for(var ii in checks) {
     var present = $(checks[ii]).length > 0;
     out[checks[ii]] = present;
   }
-	console.log('Checks done');
   return out;
 
 }
@@ -83,15 +81,15 @@ if(require.main == module) {
 
   if(program.url) {
     rest.get(program.url).on('success', function(urlContents) {
-	console.log('URL');
       var checkJson = checkRemote(urlContents, program.checks);
+      var outJson = JSON.stringify(checkJson, null, 4);
+      console.log(outJson);
     });
   } else {
-    var checkJson = checkHtmlFile(program.file, program.checks);
+      var checkJson = checkHtmlFile(program.file, program.checks);
+      var outJson = JSON.stringify(checkJson, null, 4);
+      console.log(outJson);
   }
-	console.log('Checks finished');
-  var outJson = JSON.stringify(checkJson, null, 4);
-  console.log(outJson);
 } else {
   exports.checkHtmlFile = checkHtmlFile;
 }
