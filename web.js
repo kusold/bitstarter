@@ -3,13 +3,28 @@ var fs = require('fs');
 
 var app = express.createServer(express.logger());
 
-app.get('/', function(request, response) {
+app.configure(function() {
+  app.use(express.static(__dirname + '/public'));
+});
+
+/*app.get('/', function(request, response) {
   var options = {
     encoding: "utf-8"
   };
 
   var buffer = fs.readFileSync('index.html');
   response.send(buffer.toString());
+});
+*/
+
+app.all("*", function(req, resp) {
+  var request = req.params[0];
+  if(request === "/" || request === "") {
+    request = "index.html";
+  }
+  
+  var buffer = fs.readFileSync(request);
+  resp.send(buffer.toString());
 });
 
 var port = process.env.PORT || 8080;
